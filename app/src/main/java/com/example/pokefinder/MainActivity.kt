@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.codepath.asynchttpclient.AsyncHttpClient
 import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler
 import okhttp3.Headers
+import org.json.JSONObject
 
 class MainActivity : AppCompatActivity() {
 
@@ -33,22 +34,36 @@ class MainActivity : AppCompatActivity() {
     private fun getPokeImageURL() {
         val client = AsyncHttpClient()
         client["https://pokeapi.co/api/v2/pokemon/", object : JsonHttpResponseHandler() {
-            override fun onSuccess(statusCode: Int, headers: Headers, json: JsonHttpResponseHandler.JSON) {
-                pokeImageURL = json.jsonObject.getString("results")
+            override fun onSuccess(statusCode: Int, headers: Headers?, json: JsonHttpResponseHandler.JSON) {
+                println(json)
                 val pokeImageArray = json.jsonObject.getJSONArray("results")
                 for (i in 0 until pokeImageArray.length()) {
-                    pokeList.add(pokeImageArray.getString(i))
+                    val rec = pokeImageArray.getJSONObject(i)
+                    val url = rec.getString("url")
+                    var xurl = url.substring(34)
+                    xurl = xurl.substring(0, xurl.length - 1)
+                    val yurl = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" + xurl + ".png"
+                    Log.d("penis", xurl)
+                    pokeList.add(yurl)
+
+
+
                 }
+
+
+                //https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/19.png
+
+                println(pokeList)
                 val adapter = pokeAdapter(pokeList)
                 rvPoke.adapter = adapter
                 rvPoke.layoutManager = LinearLayoutManager(this@MainActivity)
 
-                Log.d("Pokemon", "response successful$json")
+                Log.d("Pokemon", "response successful$pokeList")
             }
 
             override fun onFailure(
                 statusCode: Int,
-                headers: Headers,
+                headers: Headers?,
                 errorResponse: String,
                 throwable: Throwable?
             ) {
